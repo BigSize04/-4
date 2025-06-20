@@ -1,0 +1,98 @@
+#include <iostream>
+using namespace std;
+
+class DynamicArray {
+private:
+    int* data;
+    int size;
+    int capacity;
+
+    void resize(int newCapacity) {
+        int* newData = new int[newCapacity];
+        for (int i = 0; i < size; ++i)
+            newData[i] = data[i];
+        delete[] data;
+        data = newData;
+        capacity = newCapacity;
+    }
+
+public:
+    DynamicArray(int initialCapacity = 4) {
+        capacity = initialCapacity;
+        size = 0;
+        data = new int[capacity];
+    }
+
+    ~DynamicArray() {
+        delete[] data;
+    }
+
+    void insert(int index, int value) {
+        if (index < 0 || index > size) {
+            cout << " Некоректний індекс вставки: " << index << endl;
+            return;
+        }
+        if (size == capacity)
+            resize(capacity * 2);
+
+        for (int i = size; i > index; --i)
+            data[i] = data[i - 1];
+
+        data[index] = value;
+        size++;
+    }
+
+    void remove(int index) {
+        if (index < 0 || index >= size) {
+            cout << "❌ Некоректний індекс для видалення: " << index << endl;
+            return;
+        }
+
+        for (int i = index; i < size - 1; ++i)
+            data[i] = data[i + 1];
+
+        size--;
+
+        if (size < capacity / 4 && capacity > 4)
+            resize(capacity / 2);
+    }
+
+    void print() const {
+        cout << "Масив (" << size << "): ";
+        for (int i = 0; i < size; ++i)
+            cout << data[i] << " ";
+        cout << endl;
+    }
+
+    int getSize() const {
+        return size;
+    }
+};
+
+// === Демонстрація ===
+int main() {
+    setlocale(0, "ru");
+    DynamicArray arr;
+
+    cout << "--- Додавання елементів ---" << endl;
+    arr.insert(0, 10);
+    arr.insert(1, 20);
+    arr.insert(2, 30);
+    arr.insert(1, 15);  // вставка в середину
+    arr.print();        // Очікується: 10 15 20 30
+
+    cout << "\n--- Видалення елемента з індексом 2 ---" << endl;
+    arr.remove(2);      // видаляємо 20
+    arr.print();        // Очікується: 10 15 30
+
+    cout << "\n--- Вставка в кінець і початок ---" << endl;
+    arr.insert(3, 40);  // вставка в кінець
+    arr.insert(0, 5);   // вставка на початок
+    arr.print();        // Очікується: 5 10 15 30 40
+
+    cout << "\n--- Видалення з початку ---" << endl;
+    arr.remove(0);      // видаляємо 5
+    arr.print();        // Очікується: 10 15 30 40
+
+    return 0;
+}
